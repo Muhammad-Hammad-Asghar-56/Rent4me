@@ -15,7 +15,7 @@ async function getSearchedProperty(req, res) {
     try {
         const filteredProperties = await Property.find({
             propertyName: { $regex: searchTerm, $options: 'i' } // Case-insensitive search
-        });
+        }).sort({ 'objects.upcomingServiceDate': 1 });
         res.json(filteredProperties);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -110,7 +110,7 @@ const getFilteredProperty = async (req, res) => {
 
         const filteredProperties = await Property.find({
             'objects.upcomingServiceDate': { $gte: fromDate, $lte: toDate }
-        });
+        }).sort({ 'objects.upcomingServiceDate': 1 });;
 
         res.json(filteredProperties);
     } catch (error) {

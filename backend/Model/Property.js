@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const objectSchema = new mongoose.Schema({
     name: { type: String, required: true },
     model: { type: String, required: true },
-    buyDate: { type: String, required: true }, // Consider changing to Date type
+    buyDate: { type: String }, // Consider changing to Date type
     lastServiceDate: { type: Date, default: null },
     upcomingServiceDate: { type: Date,  default: null }
 });

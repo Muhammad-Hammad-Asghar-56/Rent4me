@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { getProperty,getFilteredProperty } from "../Context/PropertyApi.js";
 import Datepicker from "react-tailwindcss-datepicker";
-import dayjs from 'dayjs'; // Import dayjs for date manipulation
+import dayjs from 'dayjs';
 import { useNavigate } from 'react-router-dom';
 
 
@@ -72,8 +72,9 @@ const HomeFilterPage = () => {
           upcomingServiceDate: obj.upcomingServiceDate
         }))
       );
-
-      setTableData(flattenedData);
+      // Sort the data by upcomingServiceDate
+      const sortedData = flattenedData.sort((a, b) => dayjs(a.upcomingServiceDate).diff(dayjs(b.upcomingServiceDate)));
+      setTableData(sortedData);
     } catch (error) {
       console.error("Error fetching filtered property:", error);
     }
@@ -82,8 +83,6 @@ const HomeFilterPage = () => {
   const handleFilter = (newValue) => {
     const formattedFrom = newValue.startDate ? dayjs(newValue.startDate).format('YYYY-MM-DD') : '';
     const formattedTo = newValue.endDate ? dayjs(newValue.endDate).format('YYYY-MM-DD') : '';
-    
-    console.log("Formatted Dates - from:", formattedFrom, "to:", formattedTo); // Debugging log
     
     updateTable(formattedFrom, formattedTo);
   };
@@ -109,8 +108,8 @@ const HomeFilterPage = () => {
             upcomingServiceDate: obj.upcomingServiceDate
           }))
         );
-
-        setTableData(flattenedData);
+        const sortedData = flattenedData.sort((a, b) => dayjs(a.upcomingServiceDate).diff(dayjs(b.upcomingServiceDate)));
+        setTableData(sortedData);
       } catch (error) {
         console.error("Error fetching filtered property:", error);
       }
@@ -148,7 +147,7 @@ const HomeFilterPage = () => {
                         </thead>
               <tbody>
               {tableData.map((row, index) => (
-                row.upcomingServiceDate != 'N/A' && (
+                row.upcomingServiceDate != null && (
                   <tr key={index} className="bg-white border-b">
                     <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
                       {row.propertyName}

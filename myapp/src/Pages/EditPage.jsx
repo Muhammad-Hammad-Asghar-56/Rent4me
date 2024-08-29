@@ -4,6 +4,7 @@ import { getPropertyById, editProperty } from "../Context/PropertyApi";
 import { useNavigate, useParams } from 'react-router-dom';
 import Datepicker from 'react-tailwindcss-datepicker';
 import Modal from '../Components/Model';
+import dayjs from 'dayjs';;
 
 const EditPage = () => {
     const { id } = useParams();
@@ -17,6 +18,9 @@ const EditPage = () => {
     const [showModal, setShowModal] = useState(false);
     const [currentDateIndex, setCurrentDateIndex] = useState(null);
     const [currentDateField, setCurrentDateField] = useState("");
+    const [newServiceName,setNewServiceName]=useState("");
+    const [serviceModel,setServiceModel]=useState("");
+    const [newServiceBuyDate, setNewServiceBuyDate]=useState("");
 
     useEffect(() => {
         const fetchData = async () => {
@@ -35,7 +39,7 @@ const EditPage = () => {
 
     const onSubmit = async (data) => {
         try {
-            await editProperty(id, data["propertyName"], data["address"], services);
+            await editProperty(id,propertyName, address, services);
             navigate("/property");
         } catch (error) {
             console.error('Error registering property:', error);
@@ -68,6 +72,37 @@ const EditPage = () => {
         setShowModal(false);
     };
 
+    const addService = () =>{
+        if(newServiceName==="" || serviceModel===""){
+            alert("Object name and model should not be empty");
+            return;
+        }
+        // Convert newServiceBuyDate to a valid date format if it's not null
+        const formattedBuyDate = newServiceBuyDate?.startDate ? new Date(newServiceBuyDate.startDate).toISOString() : null;
+        
+        const body={
+            buyDate: formattedBuyDate,
+            lastServiceDate: null,
+            upcomingServiceDate: null,
+            name:newServiceName,
+            model:serviceModel
+        }
+        setServices(prevServices => [...prevServices, body]);
+
+
+        setNewServiceName("");
+        setServiceModel("");
+    }
+
+    const formatDisplayDate=(date)=>{
+        
+        if(date==null){
+            return ""
+        }
+        return new Date(date).toISOString().split('T')[0];
+        // return date;
+
+    }
     return (
         <div className='bg-white text-gray-900 h-full z-0'>
             <h1 className='text-3xl text-navy'>Edit Property</h1>
@@ -93,7 +128,46 @@ const EditPage = () => {
                         required
                         {...register("address")}
                     />
+                    
+                    <div className='flex flex-row gap-2'>
+                        <input
+                            type="text"
+                            id="service"
+                            value={newServiceName}
+                            onChange={(e) => setNewServiceName(e.target.value)}
+                            className="bg-gray-50 mb-5 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-1/3 p-2.5"
+                            placeholder="Object"
+                            required
+                        />
+                        <input
+                            type="text"
+                            id="model"
+                            value={serviceModel}
+                            onChange={(e) => setServiceModel(e.target.value)}
+                            className="bg-gray-50 mb-5 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-1/6 p-2.5"
+                            placeholder="Model"
+                            required
+                        />
+                        <div className='h-full border border-gray-200 rounded-lg mx-0 my-0 p-0'>
 
+                            <Datepicker
+                                value={newServiceBuyDate}
+                                onChange={(newValue) => setNewServiceBuyDate(newValue)}
+                                primaryColor={"blue"} 
+                                useRange={false}
+                                asSingle={true}
+                                displayFormat="YYYY-MM-DD"
+                                popoverDirection="down"
+                                />
+                        </div>
+                        <button
+                            type="button"
+                            onClick={addService}
+                            className="w-1/3  h-full py-2.5 px-5 me-2 mb-2  text-sm font-medium text-white focus:outline-none bg-navy rounded-lg border border-gray-200 focus:z-10 focus:ring-4 focus:ring-blue-500"
+                        >
+                            Add
+                        </button>
+                    </div>
                     <div className="relative h-full overflow-x-auto overflow-y-scroll">
                     <table className="w-full text-sm text-left rtl:text-right text-gray-500">
                         <thead className="text-xs text-gray-700 bg-gray-50">
@@ -116,7 +190,7 @@ const EditPage = () => {
                                                             <div className="relative">
                                                                 <input
                                                                     type="text"
-                                                                    value={service[header] ? new Date(service[header]).toISOString().split('T')[0] : ""}
+                                                                    value={service[header] ? formatDisplayDate(new Date(service[header])) : ""}
                                                                     onClick={() => openDateModal(index, header)}
                                                                     readOnly
                                                                     className="bg-gray-50 border border-gray-300 rounded-lg p-1 z-10"
